@@ -1,61 +1,93 @@
-const Observable = require('rxjs').Observable;
+const
+	Observable = require('rxjs').Observable,
+	Promise = require('es6-promise').Promise,
+	fetch = require('node-fetch');
 
-const waterfall = series => {
-	return Observable.defer(() => {
-		var acc = series[0]();
-		for (var i = 1, len = series.length; i < len; i++) {
-			(function (func) {
-				acc = acc.switchMap(x => func(x));
-			}(series[i]));
-		}
-		return acc;
-	});
-};
+fetch.Promise = Promise;
 
-const wrapTimeout = (item) => {
-	return Observable.create(observer => {
-		setTimeout(() => {
-			console.log(`in\t${item.value}\t${new Date().getTime()}`);
-			observer.next(item);
-			observer.complete();
-		}, 300);
-	});
-};
-
-const add1 = (item) => {
-	return wrapTimeout(Object.assign(item, { value: item.value + 1 })).delay(300);
-};
-
-const add1xTimes = (howMany) => {
-	return Array(howMany).fill((item) => add1(item));
-};
-
-const multiply = (item, howManyTimes) => {
-	return wrapTimeout(Object.assign(item, { value: item.value * howManyTimes })).delay(300);
-};
-
-const divide = (item, by) => {
-	return wrapTimeout(Object.assign(item, { value: item.value / by })).delay(300);
-};
-
-const flow = [() => add1({ value: 0 })].concat(
-	add1xTimes(2),
-	item => multiply(item, 5),
-	item => divide(item, 3),
-	add1xTimes(4),
-	item => multiply(item, 10)
-);
-
-const example = waterfall(flow);
-
-console.log(`start\t0\t${new Date().getTime()}`);
-
-var subscription = example.subscribe(
-	val => console.log(`ou\t${val.value}\t${new Date().getTime()}`),
-	(err) => console.error(err),
-	() => {
-		console.log(`finish\t\t${new Date().getTime()}`);
-		subscription.unsubscribe();
+class RxUtil {
+	waterfall(series) {
+		return Observable.defer(() => {
+			var acc = series[0]();
+			for (var i = 1, len = series.length; i < len; i++) {
+				(function (func) {
+					acc = acc.switchMap(x => func(x));
+				}(series[i]));
+			}
+			return acc;
+		});
 	}
-);
 
+	timer(state, delay) {
+		return Observable.create(observer => {
+			setTimeout(() => {
+				observer.next(state);
+				observer.complete();
+			}, delay);
+		});
+	}
+
+	init(value) {
+		return this.timer(Object.assign({}, value), 1);
+	}
+
+	defer(operation) {
+		return this.timer(operation(), 1);
+	}
+
+	async(state, prop, obs) {
+		return Observable.create(observer => {
+			obs.subscribe(
+				result => {
+					if (!state[prop]) state[prop] = [];
+					Object.assign(state, {
+						[prop]: result
+					});
+					observer.next(state);
+					observer.complete();
+				},
+				err => observer.error(err)
+			)
+		});
+	}
+
+	pass(state, observable) {
+		return Observable.create(observer => {
+			observable.subscribe(
+				() => {
+					console.log('pas finished');
+					observer.next(state);
+					observer.complete();
+				}
+			);
+		});
+	}
+
+	let(state, fn) {
+		fn();
+		return Observable.of(state);
+	}
+
+	fetch(state, item, url, prop, htmlparser) {
+		return Observable.create(observer => {
+			fetch(url)
+				.then(res => res.text())
+				.then(body => htmlparser(body))
+				.then((result) => {
+					if (!item[prop]) item[prop] = [];
+
+					if (Array.isArray(result)) {
+						Object.assign(item, {
+							[prop]: [...item[prop], ...result]
+						});
+					} else {
+						Object.assign(item, result);
+					}
+					observer.next(state);
+					observer.complete();
+				}).catch(err => observer.error(err));
+		});
+	}
+}
+
+module.exports = new RxUtil();

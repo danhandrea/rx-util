@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/danhandrea/rx-util#readme",
   "dependencies": {
+    "es6-promise": "^4.1.0",
+    "node-fetch": "^1.6.3",
     "rxjs": "^5.2.0"
   }
 }
