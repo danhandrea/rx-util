@@ -1,0 +1,22 @@
+{
+  "name": "rx-util",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danhandrea/rx-util.git"
+  },
+  "keywords": [
+    "utils"
+  ],
+  "author": "Dan Handrea",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/danhandrea/rx-util/issues"
+  },
+  "homepage": "https://github.com/danhandrea/rx-util#readme"
+}
