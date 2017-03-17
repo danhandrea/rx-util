@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/danhandrea/rx-util/issues"
   },
-  "homepage": "https://github.com/danhandrea/rx-util#readme"
+  "homepage": "https://github.com/danhandrea/rx-util#readme",
+  "dependencies": {
+    "rxjs": "^5.2.0"
+  }
 }
