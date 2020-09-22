@@ -21,7 +21,7 @@
   "homepage": "https://github.com/danhandrea/rx-util#readme",
   "dependencies": {
     "es6-promise": "^4.1.0",
-    "node-fetch": "^1.6.3",
+    "node-fetch": ">=2.6.1",
     "rxjs": "^5.2.0"
   }
 }
